@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Weather Dashboard</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <style type="text/css">
+        h1 {
+            text-align: center;
+            background-color: darkblue;
+            color: white;
+            padding: 20px;
+        }
+
+        .card-text {
+            margin-left: 20px;
+            line-height: 2;
+        }
+
+        .city-button {
+            margin: 10px;
+            width: 200px;
+            background-color: darkblue;
+            color: white;
+            border-radius: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Weather Dashboard</h1>
+    <div class=container>
+        <div class="row">
+            <div class="col-md-4">
+                <!-- Weather Select Box -->
+                <form id="Weather Dashboard">
+
+                    <!-- Label for Text Box -->
+                    <label for="city-input">Search for a city:</label><br>
+
+                    <!-- Text Input Box -->
+                    <input type="text" id="city-input">
+
+                    <!-- Submit Button -->
+                    <input id="select-city" type="submit" value="GO!">
+                </form>
+                <div class=row>
+                    <!-- Cities will get dumped here -->
+                    <div id="buttons-view"></div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card mt-2">
+                    <h3 class="city card-text"></h3>
+                    <div class="card-text">Temperature: <span class="temp"></span></div>
+                    <div class="card-text">Humidity: <span class="humidity"></span></div>
+                    <div class="card-text">Wind Speed: <span class="wind"></span></div>
+                    <div class="card-text">UV Index: <span class="uv-index"></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript">
+
+        // API key.
+        var APIKey = "7a6f0490fa3d04b7f83485219009f932";
+
+        function searchCity(city) {
+            // Here we are building the URL we need to query the database
+            var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=" + APIKey;
+            $.ajax({
+                url: queryURL,
+                method: "GET"
+            }).then(function (response) {
+                console.log(response);
+                // Transfer content to HTML
+                var cityName = $(".city").text(response.name);
+                var tempKelvin = response.main.temp;
+                var tempFarenheit = (tempKelvin - 273.15) * 1.80 + 32;
+                $(".temp").text(Math.round(tempFarenheit) + " °F");
+                $(".humidity").text(response.main.humidity + "%");
+                $(".wind").text(response.wind.speed + " MPH");
+            });
+        }
+
+        // My array of cities
+        var cities = [];
+
+        function renderButtons() {
+
+            // Delete the content inside the buttons-view div prior to adding new movies
+            $("#buttons-view").empty();
+            // (this is necessary otherwise you will have repeat buttons)
+
+            // Loop through the array of cities, then generate buttons for each city in the array
+            for (i = 0; i < cities.length; i++) {
+                var newDiv = $("<div>")
+                var newButton = $("<button>").text(cities[i]).addClass("city-button");
+                $(newDiv).prepend(newButton)
+                $("#buttons-view").prepend(newDiv);
+            }
+        }
+
+        // Event handler for user clicking the select-city button
+        $("#select-city").on("click", function (event) {
+            // Preventing the button from trying to submit the form
+            event.preventDefault();
+            // Storing the city name
+            var city = $("#city-input").val();
+            //Sending the city name to my array of cities
+            cities.push(city);
+            // Running the searchCity function(passing in the city as an argument)
+            searchCity(city);
+            // 
+            renderButtons();
+        });
+
+        $(document).on("click", ".city-button", function (event) {
+            var cityInput = $(this).text();
+            searchCity(cityInput);
+        });
+
+
+    </script>
+
+</body>
+
+</html>
